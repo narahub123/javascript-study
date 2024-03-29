@@ -61,9 +61,9 @@ console.log(add3(2)); // 5 - add3함수 생성된 이후에도 상위함수인 m
 // - 생성된 이후에도 계속 접근 가능
 
 function makeCounter() {
-  let num = 0; // 은닉화 
+  let num = 0; // 은닉화
 
-  // 내부 함수에서 외부함수의 변수에 접근 
+  // 내부 함수에서 외부함수의 변수에 접근
   return function () {
     return num++;
   };
@@ -74,3 +74,142 @@ let counter = makeCounter();
 console.log(counter()); // 0
 console.log(counter()); // 1
 console.log(counter()); // 2
+
+// color coding
+
+{
+  function outer() {
+    function inner() {}
+  }
+
+  function human() {
+    const name = "Sina";
+    function sayHi() {
+      console.log(`Hi I am ${name}`);
+    }
+    sayHi();
+  }
+
+  human(); // Hi I am Sina
+
+  function human() {
+    const name = "Sina";
+    function sayHi() {
+      console.log(`Hi I am ${name}`);
+    }
+    function sayHowYouFeel() {
+      console.log(`${name} is feeling good!`);
+    }
+    sayHi();
+    sayHowYouFeel();
+  }
+
+  human();
+  // Hi I am Sina
+  // Sina is feeling good!
+  // two inner functions share name variables!!
+  // they both can access to outer scope
+
+  function human(n) {
+    const name = n;
+    function sayHi() {
+      console.log(`Hi I am ${name}`);
+    }
+    function sayHowYouFeel() {
+      console.log(`${name} is feeling good!`);
+    }
+    sayHi();
+    sayHowYouFeel();
+  }
+
+  human("Sina");
+  // Hi I am Sina
+  // Sina is feeling good!
+
+  function human(name) {
+    function sayHi() {
+      console.log(`Hi I am ${name}`);
+    }
+    function sayHowYouFeel() {
+      console.log(`${name} is feeling good!`);
+    }
+    sayHi();
+    sayHowYouFeel();
+  }
+
+  human("Sina");
+  // Hi I am Sina
+  // Sina is feeling good!
+
+  let sina = human("Sina");
+  // Hi I am Sina
+  // Sina is feeling good!
+  let qoli = human("Qoli");
+  // Hi I am Qoli
+  // Qoli is feeling good!
+
+  const name = "Sina";
+  function sayHi() {
+    console.log(`Hi I am ${name}`);
+  }
+  function sayHowYouFeel() {
+    console.log(`${name} is feeling good!`);
+  }
+
+  sayHi(); // Hi I am Sina
+  sayHowYouFeel(); // Sina is feeling good!
+
+  // factory function
+  function human(n) {
+    const name = n;
+    function sayHi() {
+      console.log(`Hi I am ${name}`);
+    }
+    function sayHowYouFeel() {
+      console.log(`${name} is feeling good!`);
+    }
+    return {
+      sayHi,
+      sayHowYouFeel,
+    };
+  }
+
+  sina = human("Sina");
+  qoli = human("Qoli");
+
+  // holding the value(name) even if the name no longer exists
+  sina.sayHi(); // Hi I am Sina
+  sina.sayHowYouFeel(); // Sina is feeling good!
+
+  qoli.sayHi(); // Hi I am Qoli
+  qoli.sayHowYouFeel(); // Qoli is feeling good!
+} // human() example
+
+// practical example from mdn
+// document.getElementById("size-12").onclick = function () {
+//   document.body.style.fontSize = `12px`;
+// };
+
+// document.getElementById("size-14").onclick = function () {
+//   document.body.style.fontSize = `14px`;
+// };
+
+// document.getElementById("size-16").onclick = function () {
+//   document.body.style.fontSize = `16px`;
+// };
+
+function clickHandler(size) {
+  document.body.style.fontSize = `${size}px`;
+}
+
+// document.getElementById("size-12").onclick = clickHandler(12);
+// document.getElementById("size-14").onclick = clickHandler(14);
+// document.getElementById("size-16").onclick = clickHandler(16);
+
+function clickHandler(size) {
+  return function () {
+    document.body.style.fontSize = `${size}px`;
+  };
+}
+
+document.getElementById("size-12").onclick = clickHandler(12);
