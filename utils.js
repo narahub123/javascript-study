@@ -55,51 +55,257 @@ const createIdByEmail = (
 
 console.log(createIdByEmail(email));
 
-// // 로컬 파트 추출
-// let local = email.split("@")[0];
+// 한글 초중성 분리하기
+const CHO_HANGUL = [
+  "ㄱ",
+  "ㄲ",
+  "ㄴ",
+  "ㄷ",
+  "ㄸ",
+  "ㄹ",
+  "ㅁ",
+  "ㅂ",
+  "ㅃ",
+  "ㅅ",
+  "ㅆ",
+  "ㅇ",
+  "ㅈ",
+  "ㅉ",
+  "ㅊ",
+  "ㅋ",
+  "ㅌ",
+  "ㅍ",
+  "ㅎ",
+];
+const JOONG_HANGUL = [
+  "ㅏ",
+  "ㅐ",
+  "ㅑ",
+  "ㅒ",
+  "ㅓ",
+  "ㅔ",
+  "ㅕ",
+  "ㅖ",
+  "ㅗ",
+  "ㅘ",
+  "ㅙ",
+  "ㅚ",
+  "ㅛ",
+  "ㅜ",
+  "ㅝ",
+  "ㅞ",
+  "ㅟ",
+  "ㅠ",
+  "ㅡ",
+  "ㅢ",
+  "ㅣ",
+];
+const JONG_HANGUL = [
+  "",
+  "ㄱ",
+  "ㄲ",
+  "ㄳ",
+  "ㄴ",
+  "ㄵ",
+  "ㄶ",
+  "ㄷ",
+  "ㄹ",
+  "ㄺ",
+  "ㄻ",
+  "ㄼ",
+  "ㄽ",
+  "ㄾ",
+  "ㄿ",
+  "ㅀ",
+  "ㅁ",
+  "ㅂ",
+  "ㅄ",
+  "ㅅ",
+  "ㅆ",
+  "ㅇ",
+  "ㅈ",
+  "ㅊ",
+  "ㅋ",
+  "ㅌ",
+  "ㅍ",
+  "ㅎ",
+];
 
-// console.log("로컬 파트:", local);
+// 국어 영문 표기법에 따른 변경
+const CHO_ENG = [
+  "g", // ㄱ
+  "kk", // ㄲ
+  "n", // ㄴ
+  "d", // ㄷ
+  "tt", // ㄸ
+  "r", // ㄹ
+  "m", // ㅁ
+  "b", // ㅂ
+  "pp", // ㅃ
+  "s", // ㅅ
+  "ss", // ㅆ
+  "", // ㅇ (로마자 표기에서 초성으로 사용되지 않음)
+  "j", // ㅈ
+  "jj", // ㅉ
+  "ch", // ㅊ
+  "k", // ㅋ
+  "t", // ㅌ
+  "p", // ㅍ
+  "h", // ㅎ
+];
 
-// // 추출한 로컬 파트의 유효성 검사
-// // 1. 모든 영문자를 소문자로 변환
-// local = local.toLowerCase();
+const JOONG_ENG = [
+  "a", // ㅏ
+  "ae", // ㅐ
+  "ya", // ㅑ
+  "yae", // ㅒ
+  "eo", // ㅓ
+  "e", // ㅔ
+  "ye", // ㅕ
+  "ye", // ㅖ
+  "o", // ㅗ
+  "wa", // ㅘ
+  "wae", // ㅙ
+  "oe", // ㅚ
+  "yo", // ㅛ
+  "u", // ㅜ
+  "weo", // ㅝ
+  "we", // ㅞ
+  "wi", // ㅟ
+  "yu", // ㅠ
+  "eu", // ㅡ
+  "ui", // ㅢ
+  "i", // ㅣ
+];
 
-// console.log("영문 대문자를 소문자로 변환:", local);
+const JONG_ENG = [
+  "", // 없음 (받침이 없는 경우)
+  "k", // ㄱ
+  "k", // ㄲ
+  "k", // ㄳ
+  "n", // ㄴ
+  "n", // ㄵ
+  "n", // ㄶ
+  "t", // ㄷ
+  "l", // ㄹ
+  "k", // ㄺ
+  "m", // ㄻ
+  "l", // ㄼ
+  "l", // ㄽ
+  "l", // ㄾ
+  "l", // ㄿ
+  "l", // ㅀ
+  "m", // ㅁ
+  "p", // ㅂ
+  "p", // ㅄ
+  "t", // ㅅ
+  "t", // ㅆ
+  "ng", // ㅇ (받침이 없는 경우)
+  "t", // ㅈ
+  "t", // ㅊ
+  "k", // ㅋ
+  "t", // ㅌ
+  "p", // ㅍ
+  "t", // ㅎ
+];
 
-// // 2. 영어, 숫자, 특정 특수 문자 제외하고는 a로 치환
-// const reg = /[^a-zA-Z0-9_]/g;
+// 한글 유니코드 패턴
+// 21개의 중성과 28개의 종성이 모두 바껴야 초성이 바뀜
+const CHO_PERIOD = Math.floor("까".charCodeAt(0) - "가".charCodeAt(0)); // 588(28 * 21)
+console.log("초성 간격", CHO_PERIOD);
 
-// local = local.replace(reg, "a");
+// 28개의 종성이 바뀌어야 중성이 바뀜
+const JOONG_PERIOD = Math.floor("개".charCodeAt(0) - "가".charCodeAt(0)); // 28
+console.log("중성 간격", JOONG_PERIOD);
 
-// console.log("조건에 맞지 않는 문자를 a로 치환", local);
+// 한글 검증하기
+const HANGUL_START_CHARCODE = "가".charCodeAt(0);
+console.log(HANGUL_START_CHARCODE); // 44032
 
-// // 3. 문자열은 영어 소문자로 시작해야 함
-// // 문자열로 시작하지 않는 경우 문자 삽입
-// const reg1 = /^[^a-z]/;
-// local = local.replace(reg1, "pg");
+const HANGUL_END_CHARCODE = "힣".charCodeAt(0);
+console.log(HANGUL_END_CHARCODE); // 55203
 
-// console.log("문자로 시작하지 않는 경우 문자 추가", local);
+// 조합된 글자인지 체크(가 ~ 힣 사이)
+const isHangul = (charCode) => {
+  return HANGUL_START_CHARCODE <= charCode && charCode <= HANGUL_END_CHARCODE;
+};
 
-// // 4. 문자열 길이 제한
-// // 최소보다 작은 경우 문자열 추가
-// // 최대보다 큰 경우 문자열 삭제
-// const checkLength = (str) => {
-//   const length = local.length;
-//   if (length < 4) {
-//     // 문자열 추가
-//     const add = "play";
+console.log("한글 여부 확인하기", isHangul("갈".charCodeAt(0)));
 
-//     local = local + add.slice(0, length);
-//   }
+// 글자 분리하기
+const divideHangul = (letter) => {
+  // 하나의 음절의 유니코드 확인
+  const letterCode = letter.charCodeAt(0);
 
-//   if (length > 20) {
-//     // 문자열 삭제
-//     local = local.slice(0, 20);
-//   }
+  // 한글 여부 확인
+  if (!isHangul(letterCode)) {
+    return letter;
+  }
 
-//   return local;
-// };
+  // 유니코드에서의 순서 확인
+  const charCode = letterCode - HANGUL_START_CHARCODE;
+  console.log("해당 음절의 한글 유니코드 내의 위치:", charCode);
 
-// local = checkLength(local);
+  // 초성 순서
+  const choIndex = Math.floor(charCode / CHO_PERIOD);
+  console.log("초성 순서:", choIndex);
+  // 초성 나머지 내에서 중성과 종성이 바뀜
+  console.log("초성 나머지:", charCode % CHO_PERIOD);
 
-// console.log("길이 확인 후", local);
+  // 중성 순서
+  // 초성이 고정되어 있는 상태에서 중성의 위치 찾기
+  // 중성의 간격마다 새로운 중성이 나타남
+  const joongIndex = Math.floor((charCode % CHO_PERIOD) / JOONG_PERIOD);
+  console.log("중성 순서:", joongIndex);
+  // 중성 나머지 내에서 종성이 바뀜
+  console.log("중성 나머지:", charCode % JOONG_PERIOD);
+
+  // 종성 순서
+  const jongIndex = charCode % JOONG_PERIOD;
+  console.log("종성 순서:", jongIndex);
+
+  return {
+    cho: CHO_HANGUL[choIndex],
+    joong: JOONG_HANGUL[joongIndex],
+    jong: JONG_HANGUL[jongIndex],
+  };
+};
+
+const diviededHangul = divideHangul("예");
+console.log(divideHangul("예"));
+
+const romanizeHangul = (dividedHangul) => {
+  const choIndex = CHO_HANGUL.indexOf(dividedHangul.cho);
+  const joongIndex = JOONG_HANGUL.indexOf(dividedHangul.joong);
+  const jongIndex = JONG_HANGUL.indexOf(dividedHangul.jong);
+
+  console.log("초성, 중성, 종성 인덱스", choIndex, joongIndex, jongIndex);
+
+  let engLetter = "";
+
+  engLetter += CHO_ENG[choIndex];
+  engLetter += JOONG_ENG[joongIndex];
+  engLetter += JONG_ENG[jongIndex];
+
+  console.log("로마자 음절", engLetter);
+
+  return engLetter;
+};
+
+const romanizeKorWord = (word) => {
+  let engWord = "";
+
+  word.split("").map((letter) => {
+    const dividedletter = divideHangul(letter);
+
+    const romanizedLetter = romanizeHangul(dividedletter);
+
+    engWord += romanizedLetter;
+  });
+
+  return engWord;
+};
+
+const romanizedWord = romanizeKorWord("예쁘다");
+
+console.log(romanizedWord);
