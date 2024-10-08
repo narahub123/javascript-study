@@ -1,6 +1,7 @@
 const email = "1234TesT*rEad1234ㄱㄴㄹㄷ@gmail.com"; //"as";
 const socialId = "f4j2h6l9g1b8z3n7k5xq0t1w9p2v7s6";
 const naverId = "yPvC-phDwrDOqn-s2hsLHqCszy0VJY_cSM6PJ2OnVkA";
+const username = "reafe칸@$^*'👋";
 
 // 이메일을 이용하는 경우
 const createIdByEmail = (
@@ -52,8 +53,6 @@ const createIdByEmail = (
 
   return local;
 };
-
-console.log(createIdByEmail(email));
 
 // 한글 초중성 분리하기
 const CHO_HANGUL = [
@@ -212,25 +211,19 @@ const JONG_ENG = [
 // 한글 유니코드 패턴
 // 21개의 중성과 28개의 종성이 모두 바껴야 초성이 바뀜
 const CHO_PERIOD = Math.floor("까".charCodeAt(0) - "가".charCodeAt(0)); // 588(28 * 21)
-console.log("초성 간격", CHO_PERIOD);
 
 // 28개의 종성이 바뀌어야 중성이 바뀜
 const JOONG_PERIOD = Math.floor("개".charCodeAt(0) - "가".charCodeAt(0)); // 28
-console.log("중성 간격", JOONG_PERIOD);
 
 // 한글 검증하기
 const HANGUL_START_CHARCODE = "가".charCodeAt(0);
-console.log(HANGUL_START_CHARCODE); // 44032
 
 const HANGUL_END_CHARCODE = "힣".charCodeAt(0);
-console.log(HANGUL_END_CHARCODE); // 55203
 
 // 조합된 글자인지 체크(가 ~ 힣 사이)
 const isHangul = (charCode) => {
   return HANGUL_START_CHARCODE <= charCode && charCode <= HANGUL_END_CHARCODE;
 };
-
-console.log("한글 여부 확인하기", isHangul("갈".charCodeAt(0)));
 
 // 글자 분리하기
 const divideHangul = (letter) => {
@@ -244,25 +237,17 @@ const divideHangul = (letter) => {
 
   // 유니코드에서의 순서 확인
   const charCode = letterCode - HANGUL_START_CHARCODE;
-  console.log("해당 음절의 한글 유니코드 내의 위치:", charCode);
 
   // 초성 순서
   const choIndex = Math.floor(charCode / CHO_PERIOD);
-  console.log("초성 순서:", choIndex);
-  // 초성 나머지 내에서 중성과 종성이 바뀜
-  console.log("초성 나머지:", charCode % CHO_PERIOD);
 
   // 중성 순서
   // 초성이 고정되어 있는 상태에서 중성의 위치 찾기
   // 중성의 간격마다 새로운 중성이 나타남
   const joongIndex = Math.floor((charCode % CHO_PERIOD) / JOONG_PERIOD);
-  console.log("중성 순서:", joongIndex);
-  // 중성 나머지 내에서 종성이 바뀜
-  console.log("중성 나머지:", charCode % JOONG_PERIOD);
 
   // 종성 순서
   const jongIndex = charCode % JOONG_PERIOD;
-  console.log("종성 순서:", jongIndex);
 
   return {
     cho: CHO_HANGUL[choIndex],
@@ -271,15 +256,12 @@ const divideHangul = (letter) => {
   };
 };
 
-const diviededHangul = divideHangul("예");
-console.log(divideHangul("예"));
-
+divideHangul("cat");
+// 한글 음절 로마자화하기
 const romanizeHangul = (dividedHangul) => {
   const choIndex = CHO_HANGUL.indexOf(dividedHangul.cho);
   const joongIndex = JOONG_HANGUL.indexOf(dividedHangul.joong);
   const jongIndex = JONG_HANGUL.indexOf(dividedHangul.jong);
-
-  console.log("초성, 중성, 종성 인덱스", choIndex, joongIndex, jongIndex);
 
   let engLetter = "";
 
@@ -287,11 +269,10 @@ const romanizeHangul = (dividedHangul) => {
   engLetter += JOONG_ENG[joongIndex];
   engLetter += JONG_ENG[jongIndex];
 
-  console.log("로마자 음절", engLetter);
-
   return engLetter;
 };
 
+// 한글 단어 로마자화하기
 const romanizeKorWord = (word) => {
   let engWord = "";
 
@@ -306,6 +287,46 @@ const romanizeKorWord = (word) => {
   return engWord;
 };
 
-const romanizedWord = romanizeKorWord("예쁘다");
+const letter = "぀".charCodeAt(0);
+const ALPHABET_UPPERCASE_START = "A".charCodeAt(0);
+const ALPHABET_UPPERCASE_END = "Z".charCodeAt(0);
+const ALPHABET_LOWERCASE_START = "a".charCodeAt(0);
+const ALPHABET_LOWERCASE_END = "z".charCodeAt(0);
 
-console.log(romanizedWord);
+// 문자열의 언어 구성알기
+// 알파벳 여부 확인하기
+const isAlphabet = (charCode) => {
+  return (
+    // 대문자
+    (ALPHABET_UPPERCASE_START <= charCode &&
+      charCode <= ALPHABET_UPPERCASE_END) ||
+    // 소문자
+    (ALPHABET_LOWERCASE_START <= charCode && charCode <= ALPHABET_LOWERCASE_END)
+  );
+};
+
+const NUMBER_START_CHARCODE = "0".charCodeAt(0);
+const NUMBER_END_CHARCODE = "9".charCodeAt(0);
+
+// 숫자 여부 확인하기
+const isNumber = (charCode) => {
+  return NUMBER_START_CHARCODE <= charCode && charCode <= NUMBER_END_CHARCODE;
+};
+
+const JAPANESE_START_CHARCODE = "぀".charCodeAt(0);
+const JAPANESE_END_CHARCODE = "ヿ".charCodeAt(0);
+
+// 일어 여부 확인하기
+const isJapanese = (charCode) => {
+  return (
+    JAPANESE_START_CHARCODE <= charCode && charCode <= JAPANESE_END_CHARCODE
+  );
+};
+
+console.log(letter);
+
+console.log(isAlphabet(letter));
+
+console.log(isNumber(letter));
+
+console.log(isJapanese(letter));
