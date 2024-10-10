@@ -258,7 +258,8 @@ const divideHangul = (letter) => {
 
 divideHangul("cat");
 // 한글 음절 로마자화하기
-const romanizeHangul = (dividedHangul) => {
+const romanizeHangul = (letter) => {
+  const dividedHangul = divideHangul(letter);
   const choIndex = CHO_HANGUL.indexOf(dividedHangul.cho);
   const joongIndex = JOONG_HANGUL.indexOf(dividedHangul.joong);
   const jongIndex = JONG_HANGUL.indexOf(dividedHangul.jong);
@@ -287,7 +288,7 @@ const romanizeKorWord = (word) => {
   return engWord;
 };
 
-const letter = "぀".charCodeAt(0);
+const letter = "각".charCodeAt(0);
 const ALPHABET_UPPERCASE_START = "A".charCodeAt(0);
 const ALPHABET_UPPERCASE_END = "Z".charCodeAt(0);
 const ALPHABET_LOWERCASE_START = "a".charCodeAt(0);
@@ -313,20 +314,36 @@ const isNumber = (charCode) => {
   return NUMBER_START_CHARCODE <= charCode && charCode <= NUMBER_END_CHARCODE;
 };
 
-const JAPANESE_START_CHARCODE = "぀".charCodeAt(0);
-const JAPANESE_END_CHARCODE = "ヿ".charCodeAt(0);
-
-// 일어 여부 확인하기
-const isJapanese = (charCode) => {
-  return (
-    JAPANESE_START_CHARCODE <= charCode && charCode <= JAPANESE_END_CHARCODE
-  );
-};
-
 console.log(letter);
+
+console.log(isHangul(letter));
 
 console.log(isAlphabet(letter));
 
 console.log(isNumber(letter));
 
-console.log(isJapanese(letter));
+const romanizeWord = (word) => {
+  let newWord = "";
+  // 단어를 철자별로 분해하기
+  word.split("").map((letter) => {
+    const charCode = letter.charCodeAt(0);
+
+    // 철자별로 어떤 언어인지 확인하기
+    if (isHangul(charCode)) {
+      const romanizedHangul = romanizeHangul(letter);
+      return (newWord += romanizedHangul);
+    } else if (isAlphabet(charCode)) {
+      return (newWord += letter);
+    } else if (isNumber(charCode)) {
+      return (newWord += letter);
+    } else {
+      return (newWord += "");
+    }
+  });
+
+  return newWord;
+};
+
+const romanizedWord = romanizeWord("👋aref각axんef11234");
+
+console.log(romanizedWord);
