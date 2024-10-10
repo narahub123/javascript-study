@@ -6,7 +6,11 @@
     <title>Document</title>
   </head>
   <body>
-    <input type="file" accept="image/*" onchange="handleImageInput(event)" />
+    <input
+      type="file"
+      accept="image/*"
+      onchange="handleImageInput(event, 0.7)"
+    />
     <img src="" id="image" alt="" />
   </body>
   <script src="/base64.js"></script>
