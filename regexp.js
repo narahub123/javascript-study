@@ -114,3 +114,39 @@ const str12 = "hello world";
 
 console.log(regex.test(str11)); // true (두 번 연속해서 "hello"가 나옴)
 console.log(regex.test(str12)); // false ("hello"와 "world"는 서로 다름)
+
+// 유효성 검사
+// 이름 1자 ~ 30자 문자 제약 없음
+const validName = /^[\s\S]{1,30}$/;
+// 성별 m: 남성, f: 여성, b: 양성, n: 중립, a: 무성 h: 숨김
+const valideGender = /^[mfbnah]$/;
+// 이메일
+const validEmail = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
+// birth 숫자 8자리
+const validBirth = /^[0-9]{8}$/;
+// password: 영어 대소문자, 숫자, 특수문자가 적어도 하나 이상 존재 최소 8자 최대 30자
+const validPassword =
+  /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*(){}\[\].,+\-*/=_~|\\?:;"'<>]).{8,30}$/;
+// id(handle) : 영어 대소문자로 시작, 숫자, 특수문자 -,_사용 가능 최소 4자 최대 30자
+const validId = /^[a-zA-Z][a-zA-Z0-9-_]{3,29}$/i;
+// ip : xxx.xxx.xxx.xxx 형식 ipv4인 경우
+const validIp =
+  /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
+
+// 형식을 통해 필드 알아 내기
+const findField = (value) => {
+  let field = "";
+  if (validEmail.test(value)) {
+    field = "email";
+  } else if (validId.test(value)) {
+    field = "id";
+  }
+
+  return field;
+};
+
+const value = "111";
+const field = findField(value)
+  ? findField(value)
+  : "조건에 맞는 필드가 없습니다.";
+console.log("입력값", value, "필드", field);
